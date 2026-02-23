@@ -1,0 +1,104 @@
+---
+title: "Sandbox Permissions"
+description: "Configure what your Node.js backend can access"
+---
+
+ToolDesk runs your Node.js code in a sandboxed environment. By default, sandboxed code has very limited access. This guide explains how to configure permissions for your projects.
+
+## Accessing Permissions
+
+To configure sandbox permissions:
+
+1. Right-click your project in the sidebar
+2. Select **Project Settings**
+3. Toggle the permissions you need
+4. Changes take effect immediately
+
+## Available Permissions
+
+### Full Read Access
+
+**What it allows:** Reading any file on the filesystem.
+
+**When to use:** File explorers, code analyzers, backup tools.
+
+```typescript
+const api = {
+  readFile: async (path: string) => {
+    const fs = await import("fs");
+    return fs.readFileSync(path, "utf-8");
+  },
+};
+```
+
+<Warning>
+  Full read access lets your code read sensitive files. Only enable for trusted code.
+</Warning>
+
+### Workspace Read/Write
+
+**What it allows:** Reading and writing files within your project directory.
+
+**When to use:** Most projects that need to save data or configuration.
+
+```typescript
+const api = {
+  saveData: async (filename: string, data: string) => {
+    const fs = await import("fs");
+    const path = await import("path");
+    const projectDir = process.env.PROJECT_DIR!;
+    fs.writeFileSync(path.join(projectDir, filename), data);
+  },
+};
+```
+
+The `PROJECT_DIR` environment variable contains your project's absolute path.
+
+### /tmp Access
+
+**What it allows:** Reading and writing in the `/tmp` directory.
+
+**When to use:** Temporary file processing, caching.
+
+### Network Access
+
+**What it allows:** Making outbound network requests (HTTP, HTTPS).
+
+**When to use:** API clients, data fetchers.
+
+```typescript
+const api = {
+  fetchData: async (url: string) => {
+    const response = await fetch(url);
+    return response.json();
+  },
+};
+```
+
+## Permission Combinations
+
+Common combinations for different project types:
+
+| Project Type | Full Read | Workspace R/W | Network |
+|--------------|-----------|---------------|---------|
+| API Client | No | No | Yes |
+| File Viewer | Yes | No | No |
+| File Editor | Yes | Yes | No |
+| Web Scraper | No | Yes | Yes |
+
+## Common Errors
+
+If you see permission errors, enable the appropriate permission:
+
+| Error | Solution |
+|-------|----------|
+| `EACCES: permission denied` | Enable read or write access |
+| `fetch failed` | Enable network access |
+| `EROFS: read-only file system` | Enable workspace write access |
+
+## Best Practices
+
+1. **Start restrictive** — Begin with no permissions, add as needed
+2. **Protect AI experiments** — Sandbox helps when testing AI-generated code
+3. **Use workspace access** — Prefer workspace access over full filesystem
+4. **Enable only what's needed** — Minimize permissions for each project

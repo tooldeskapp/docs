@@ -1,55 +1,57 @@
-# Mintlify Starter Kit
+# ToolDesk Documentation
 
-Use the starter kit to get your docs deployed and ready to customize.
+Documentation for ToolDesk, a macOS desktop application for building sandboxed web + Node.js applications with AI assistance.
 
-Click the green **Use this template** button at the top of this repo to copy the Mintlify starter kit. The starter kit contains examples with
+## About ToolDesk
 
-- Guide pages
-- Navigation
-- Customizations
-- API reference pages
-- Use of popular components
+ToolDesk lets you build small applications combining a React frontend with a Node.js backend. Your code runs in a sandboxed environment, making it safe to experiment with AI-generated code.
 
-**[Follow the full quickstart guide](https://starter.mintlify.com/quickstart)**
+## Documentation Structure
 
-## AI-assisted writing
-
-Set up your AI coding tool to work with Mintlify:
-
-```bash
-npx skills add https://mintlify.com/docs
 ```
-
-This command installs Mintlify's documentation skill for your configured AI tools like Claude Code, Cursor, Windsurf, and others. The skill includes component reference, writing standards, and workflow guidance.
-
-See the [AI tools guides](/ai-tools) for tool-specific setup.
+docs/
+├── index.mdx                 # Overview
+├── quickstart.mdx            # Getting started
+├── installation.mdx          # Download and setup
+├── concepts/                 # Core concepts
+│   ├── workspace.mdx
+│   ├── projects.mdx
+│   └── sandbox.mdx
+├── guides/                   # How-to guides
+│   ├── creating-projects.mdx
+│   ├── frontend-development.mdx
+│   ├── backend-development.mdx
+│   ├── calling-node-api.mdx
+│   └── sandbox-permissions.mdx
+├── api/                      # API reference
+│   ├── node-api.mdx
+│   └── shell-api.mdx
+└── reference/
+    └── project-structure.mdx
+```
 
 ## Development
 
-Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview your documentation changes locally. To install, use the following command:
+Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview locally:
 
-```
+```bash
 npm i -g mint
 ```
 
-Run the following command at the root of your documentation, where your `docs.json` is located:
+Run the development server:
 
-```
+```bash
 mint dev
 ```
 
-View your local preview at `http://localhost:3000`.
+View at `http://localhost:3000`.
 
-## Publishing changes
+## Publishing
 
-Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) to propagate changes from your repo to your deployment. Changes are deployed to production automatically after pushing to the default branch.
+Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) to deploy automatically.
 
-## Need help?
+## Troubleshooting
 
-### Troubleshooting
-
-- If your dev environment isn't running: Run `mint update` to ensure you have the most recent version of the CLI.
-- If a page loads as a 404: Make sure you are running in a folder with a valid `docs.json`.
-
-### Resources
-- [Mintlify documentation](https://mintlify.com/docs)
+- **Dev environment not running**: Run `mint update`
+- **Page shows 404**: Ensure you're in the folder with `docs.json`
+- **Check links**: Run `mint broken-links`

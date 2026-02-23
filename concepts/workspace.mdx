@@ -1,0 +1,71 @@
+---
+title: "Workspace"
+description: "Understanding the ToolDesk workspace structure"
+---
+
+A **workspace** in ToolDesk is a directory that contains all your projects. It uses npm workspaces to manage multiple projects, sharing dependencies across them.
+
+## Workspace Structure
+
+When you select a workspace directory, ToolDesk creates this structure:
+
+```
+my-workspace/
+├── package.json          # Workspace configuration
+├── node_modules/         # Shared dependencies
+├── AGENTS.md             # AI context file
+└── packages/             # Your projects live here
+    ├── project-a/
+    ├── project-b/
+    └── project-c/
+```
+
+## The AGENTS.md File
+
+The workspace includes an `AGENTS.md` file that provides context for AI coding tools. When you use AI to build your apps, point it to this file so it understands:
+
+- The project structure
+- How to use the ToolDesk API
+- Where to put frontend and backend code
+
+<Tip>
+  When prompting your AI, start with: "Look at AGENTS.md to understand the project structure."
+</Tip>
+
+## The packages/ Directory
+
+All your projects are stored in the `packages/` directory. Each subdirectory is an independent project:
+
+```
+packages/
+├── file-explorer/        # A file browsing tool
+├── api-dashboard/        # An API monitoring tool
+└── note-taker/           # A notes application
+```
+
+## Shared Dependencies
+
+Dependencies like React and TypeScript are installed at the workspace level and shared across all projects. This means:
+
+- Faster project creation (no duplicate installs)
+- Consistent versions across projects
+- Smaller disk usage
+
+## Selecting a Workspace
+
+When you first launch ToolDesk:
+
+1. Click **Select Folder** to open the directory picker
+2. Choose an existing directory or create a new one
+3. ToolDesk sets up the workspace structure
+4. Dependencies are installed automatically
+
+You can change your workspace later in **Settings**.
+
+## Multiple Workspaces
+
+You can have multiple workspaces on your system, but ToolDesk works with one at a time. To switch:
+
+1. Open **Settings**
+2. Click **Change** next to the workspace path
+3. Select a different directory

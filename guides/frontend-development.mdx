@@ -1,0 +1,194 @@
+---
+title: "Frontend Development"
+description: "Building React interfaces in ToolDesk projects"
+---
+
+The frontend of a ToolDesk project is a React application. This guide covers the key patterns for building effective UIs.
+
+## Project Structure
+
+Your frontend code lives in the `web/` directory:
+
+```
+web/
+├── index.html          # HTML entry point
+└── src/
+    ├── App.tsx         # Main React component
+    ├── main.tsx        # React entry point
+    └── styles.css      # Global styles
+```
+
+## Basic Component
+
+```tsx
+export default function App() {
+  return (
+    <div className="app">
+      <h1>My Tool</h1>
+      <p>Welcome to my ToolDesk project!</p>
+    </div>
+  );
+}
+```
+
+## Calling Backend Methods
+
+Use `window.__devCanvasAPI` to call your backend:
+
+```tsx
+import { useState, useEffect } from "react";
+
+// Declare the API types
+declare global {
+  interface Window {
+    __devCanvasAPI: {
+      getProjects: () => Promise<Project[]>;
+      addProject: (path: string) => Promise<Project>;
+    };
+  }
+}
+
+interface Project {
+  id: string;
+  name: string;
+  path: string;
+}
+
+export default function App() {
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    window.__devCanvasAPI.getProjects()
+      .then(setProjects)
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <div>Loading...</div>;
+
+  return (
+    <ul>
+      {projects.map((project) => (
+        <li key={project.id}>{project.name}</li>
+      ))}
+    </ul>
+  );
+}
+```
+
+## Using Shell Methods
+
+Open applications or URLs:
+
+```tsx
+const handleOpenInCursor = async (path: string) => {
+  await window.__devCanvasAPI.shell.openApplication("Cursor", [path]);
+};
+
+const handleOpenDocs = async () => {
+  await window.__devCanvasAPI.shell.openExternal("https://docs.example.com");
+};
+```
+
+## Styling
+
+### Global Styles
+
+Edit `styles.css` for global styles:
+
+```css
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  line-height: 1.6;
+}
+
+.app {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+```
+
+### Using Tailwind
+
+The workspace comes with Tailwind CSS configured. Use utility classes directly:
+
+```tsx
+export default function App() {
+  return (
+    <div className="p-8 max-w-xl mx-auto">
+      <h1 className="text-3xl font-bold mb-4">My Project</h1>
+      <p className="text-gray-600">Edit this file to get started!</p>
+    </div>
+  );
+}
+```
+
+## Shared Components
+
+The workspace includes shared UI components in `packages/components/`:
+
+```tsx
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+
+export default function App() {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>My Card</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Button>Click me</Button>
+      </CardContent>
+    </Card>
+  );
+}
+```
+
+## Hot Reload
+
+Changes to your frontend code appear instantly in the ToolDesk preview. Save a file and see the update immediately.
+
+## Error Handling
+
+Always handle errors from backend calls:
+
+```tsx
+const [error, setError] = useState<string | null>(null);
+
+const loadData = async () => {
+  try {
+    const data = await window.__devCanvasAPI.getData();
+    setData(data);
+  } catch (err) {
+    setError(err instanceof Error ? err.message : "Failed to load data");
+  }
+};
+```
+
+## TypeScript
+
+Declare your API types at the top of your component file:
+
+```tsx
+declare global {
+  interface Window {
+    __devCanvasAPI: {
+      methodName: (arg: string) => Promise<ReturnType>;
+      shell: {
+        openExternal: (url: string) => Promise<void>;
+        openApplication: (name: string, args?: string[]) => Promise<void>;
+      };
+    };
+  }
+}
+```
+
+This gives you type safety and autocomplete when calling backend methods.

@@ -1,0 +1,110 @@
+---
+title: "Creating Projects"
+description: "Create ToolDesk projects with AI assistance"
+---
+
+ToolDesk projects are designed to be created with AI assistance. This guide explains how to create projects and use AI tools effectively.
+
+## Creating a New Project
+
+1. Click the **+** button in the ToolDesk title bar
+2. Enter a name for your project (e.g., `file-browser`)
+3. Click **Create**
+
+ToolDesk generates a project with this structure:
+
+```
+packages/file-browser/
+├── package.json           # Project metadata
+├── node/
+│   └── index.ts           # Backend API
+└── web/
+    ├── index.html
+    └── src/
+        ├── App.tsx        # Main React component
+        ├── main.tsx
+        └── styles.css
+```
+
+## Building with AI
+
+The workspace includes an `AGENTS.md` file that explains the project structure to AI tools. When using AI to build your app:
+
+1. Open your workspace in an AI coding tool (like Cursor)
+2. Point the AI to `AGENTS.md` for context
+3. Describe what you want to build
+
+### Example Prompts
+
+**File Browser:**
+```
+Look at AGENTS.md to understand the project structure.
+
+Create a file browser in the "file-browser" package:
+- Show a list of files and folders
+- Click folders to navigate into them
+- Show file sizes and modification dates
+- Add a "Go Up" button to navigate to parent directory
+```
+
+**API Dashboard:**
+```
+Look at AGENTS.md to understand the project structure.
+
+Create an API dashboard in the "api-dashboard" package:
+- Fetch data from https://api.example.com/stats
+- Display the data in a nice card layout
+- Add a refresh button
+- Show loading and error states
+```
+
+**Project Launcher:**
+```
+Look at AGENTS.md to understand the project structure.
+
+Create a project launcher in the "launcher" package:
+- Let users bookmark project directories
+- Click a project to open it in Cursor
+- Use window.__devCanvasAPI.shell.openApplication("Cursor", [path])
+```
+
+## What AGENTS.md Contains
+
+The `AGENTS.md` file tells AI tools:
+
+- How the monorepo workspace is structured
+- That each package has `web/` and `node/` directories
+- How to use `window.__devCanvasAPI` to call backend methods
+- How to use the shell API for system operations
+
+<Tip>
+  If your AI isn't producing the right code, check that it's reading `AGENTS.md` and understanding the ToolDesk API pattern.
+</Tip>
+
+## After Creation
+
+Once your project is created:
+
+1. The project opens in ToolDesk's preview
+2. Open the workspace in your AI coding tool
+3. Start prompting your AI to build features
+
+## Configuring Permissions
+
+If your app needs filesystem or network access:
+
+1. Right-click the project in the sidebar
+2. Select **Project Settings**
+3. Enable the permissions you need
+
+See [Sandbox Permissions](/guides/sandbox-permissions) for details.
+
+## Project Naming
+
+Use lowercase names with hyphens:
+
+| Good | Avoid |
+|------|-------|
+| `file-browser` | `File Browser` |
+| `api-dashboard` | `ApiDashboard` |
+| `note-taker` | `note_taker` |

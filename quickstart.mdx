@@ -1,80 +1,121 @@
 ---
 title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+description: "Get started with ToolDesk in minutes"
 ---
 
-## Get started in three steps
+This guide walks you through installing ToolDesk, setting up a workspace, and creating your first project with AI.
 
-Get your documentation site running locally and make your first customization.
+## Prerequisites
 
-### Step 1: Set up your local environment
+- **macOS 11+** (Big Sur or later)
+- **Node.js 18+** ([download](https://nodejs.org/))
+- **An AI coding tool** like [Cursor](https://cursor.sh) or an AI assistant
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+## Step 1: Install ToolDesk
 
-### Step 2: Deploy your changes
+Download the latest release from GitHub:
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+<Card title="Download for macOS" icon="apple" href="https://github.com/tooldesk/releases/latest">
+  Get the `.dmg` installer for macOS
+</Card>
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+Open the downloaded `.dmg` file and drag ToolDesk to your Applications folder.
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+## Step 2: Set Up Your Workspace
 
-### Step 3: Go live
+When you first launch ToolDesk:
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+1. Click **Select Folder** to choose a workspace directory
+2. ToolDesk creates the workspace structure and installs dependencies
+3. Wait for the initialization to complete
 
-## Next steps
+Your workspace is where all your projects live. It's a standard npm workspace that your AI tools can understand and work with.
 
-Now that you have your docs running, explore these key features:
+## Step 3: Create a Project with AI
+
+ToolDesk is designed for AI-assisted development. The workspace includes an `AGENTS.md` file that gives AI tools context about the project structure.
+
+1. Click the **+** button to create a new project
+2. Enter a project name (e.g., `file-browser`)
+3. Open the workspace in your AI coding tool (like Cursor)
+4. Ask your AI to build your app
+
+<Tip>
+  The `AGENTS.md` file in your workspace root explains the project structure to AI tools. Point your AI to this file for context.
+</Tip>
+
+### Example AI Prompt
+
+```
+Look at AGENTS.md to understand the project structure.
+
+Create a file browser app in the "file-browser" package that:
+- Lists files and directories
+- Lets me navigate between folders
+- Shows file sizes and dates
+
+Use window.__devCanvasAPI for the backend methods.
+```
+
+## Step 4: Understanding the API
+
+Your frontend can call backend methods through `window.__devCanvasAPI`:
+
+```typescript
+// In your frontend (web/src/App.tsx)
+
+// Declare the types for your API methods
+declare global {
+  interface Window {
+    __devCanvasAPI: {
+      listFiles: (path: string) => Promise<FileInfo[]>;
+      readFile: (path: string) => Promise<string>;
+      shell: {
+        openExternal: (url: string) => Promise<void>;
+        openApplication: (appName: string, args?: string[]) => Promise<void>;
+      };
+    };
+  }
+}
+
+// Call your backend methods
+const files = await window.__devCanvasAPI.listFiles("/Users/me/Documents");
+
+// Open apps or URLs
+await window.__devCanvasAPI.shell.openApplication("Finder", ["/Users/me"]);
+await window.__devCanvasAPI.shell.openExternal("https://example.com");
+```
+
+The API automatically connects to your backend. Any method you export from `node/index.ts` becomes available on `window.__devCanvasAPI`.
+
+## Step 5: Configure Permissions
+
+If your app needs to access the filesystem or network, configure permissions:
+
+1. Right-click your project in the sidebar
+2. Select **Project Settings**
+3. Enable the permissions you need:
+   - **Full Read Access** — Read any file on your system
+   - **Workspace Read/Write** — Read and write in your project folder
+   - **Network Access** — Make HTTP requests
+
+<Warning>
+  Sandbox permissions protect you from unintended side effects of AI-generated code. Only enable what you need.
+</Warning>
+
+## Next Steps
 
 <CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
+  <Card title="Project Structure" icon="folder" href="/concepts/projects">
+    Learn how projects are organized.
+  </Card>
+  <Card title="Backend Development" icon="server" href="/guides/backend-development">
+    Write Node.js APIs for your projects.
+  </Card>
+  <Card title="Sandbox Permissions" icon="shield" href="/guides/sandbox-permissions">
+    Configure what your projects can access.
+  </Card>
+  <Card title="API Reference" icon="code" href="/api/node-api">
+    See the full API documentation.
+  </Card>
 </CardGroup>
-
-<Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
-</Note>

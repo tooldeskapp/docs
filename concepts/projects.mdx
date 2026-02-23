@@ -1,0 +1,106 @@
+---
+title: "Projects"
+description: "Understanding ToolDesk project structure"
+---
+
+A **project** in ToolDesk is a self-contained application with a React frontend and a Node.js backend. Projects live in the `packages/` directory of your workspace.
+
+## Project Structure
+
+Every project has this structure:
+
+```
+packages/my-project/
+├── package.json           # Project metadata
+├── node/                  # Node.js backend
+│   └── index.ts           # Backend API
+└── web/                   # React frontend
+    ├── index.html         # HTML entry
+    └── src/
+        ├── App.tsx        # Main React component
+        ├── main.tsx       # React entry point
+        └── styles.css     # Styles
+```
+
+## The Frontend (`web/`)
+
+Your React application lives here. The main component is `App.tsx`:
+
+```tsx
+export default function App() {
+  return (
+    <div className="app">
+      <h1>My Project</h1>
+      <p>Edit this file to get started!</p>
+    </div>
+  );
+}
+```
+
+The frontend:
+
+- Renders inside an embedded preview in ToolDesk
+- Updates automatically as you edit (hot reload)
+- Can call backend methods through `window.__devCanvasAPI`
+
+## The Backend (`node/`)
+
+Your Node.js code lives here. Export an object with async methods:
+
+```typescript
+const api = {
+  hello: async () => {
+    return "Hello from the backend!";
+  },
+
+  listFiles: async (path: string) => {
+    const fs = await import("fs/promises");
+    return fs.readdir(path);
+  },
+};
+
+export default api;
+```
+
+The backend:
+
+- Has access to Node.js APIs (`fs`, `path`, `os`, etc.)
+- Runs in a sandboxed environment
+- Methods are available on `window.__devCanvasAPI` in your frontend
+
+## Creating Projects
+
+Projects are typically created with AI assistance:
+
+1. Click **+** in ToolDesk to create a new project
+2. Open your workspace in an AI coding tool (like Cursor)
+3. Ask your AI to build the app, referencing `AGENTS.md`
+
+The AI will create your frontend components and backend methods based on your requirements.
+
+## Project Identification
+
+For ToolDesk to recognize a directory as a project, its `package.json` must include the `tooldesk` attribute:
+
+```json
+{
+  "name": "@workspace/my-project",
+  "tooldesk": {}
+}
+```
+
+This is automatically added when you create projects through ToolDesk.
+
+## Opening and Closing Projects
+
+- **Open** — Click a project in the sidebar to open it
+- **Close** — Click the × on a project tab
+- **Session restore** — ToolDesk remembers which projects you had open
+
+## Managing Projects
+
+Right-click a project in the sidebar to:
+
+- **Rename** — Change the project name
+- **Delete** — Remove the project permanently
+- **Project Settings** — Configure sandbox permissions and icon

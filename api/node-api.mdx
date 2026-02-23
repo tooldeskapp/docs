@@ -1,0 +1,184 @@
+---
+title: "Node API"
+description: "Reference for the Node.js backend API"
+---
+
+Your backend API is defined in `node/index.ts`. Export an object with async methods, and they become available on `window.__devCanvasAPI` in your frontend.
+
+## API Structure
+
+```typescript
+const api = {
+  methodName: async (arg1: Type1, arg2: Type2): Promise<ReturnType> => {
+    // Your code here
+    return result;
+  },
+};
+
+export default api;
+```
+
+## Example
+
+**Backend** (`node/index.ts`):
+
+```typescript
+interface Project {
+  id: string;
+  name: string;
+  path: string;
+}
+
+const api = {
+  getProjects: async (): Promise<Project[]> => {
+    // Load and return projects
+    return loadProjects();
+  },
+
+  addProject: async (path: string, name?: string): Promise<Project> => {
+    // Add a new project
+    const project = { id: generateId(), name: name || path, path };
+    saveProject(project);
+    return project;
+  },
+
+  removeProject: async (id: string): Promise<boolean> => {
+    // Remove a project
+    return deleteProject(id);
+  },
+};
+
+export default api;
+```
+
+**Frontend** (`web/src/App.tsx`):
+
+```typescript
+declare global {
+  interface Window {
+    __devCanvasAPI: {
+      getProjects: () => Promise<Project[]>;
+      addProject: (path: string, name?: string) => Promise<Project>;
+      removeProject: (id: string) => Promise<boolean>;
+    };
+  }
+}
+
+// Usage
+const projects = await window.__devCanvasAPI.getProjects();
+const newProject = await window.__devCanvasAPI.addProject("/path/to/project", "My Project");
+await window.__devCanvasAPI.removeProject("project-id");
+```
+
+## Available Node.js APIs
+
+Your backend has access to all Node.js built-in modules:
+
+### Filesystem
+
+```typescript
+import fs from "fs";
+import path from "path";
+
+const api = {
+  readFile: async (filePath: string) => {
+    return fs.readFileSync(filePath, "utf-8");
+  },
+
+  listDirectory: async (dirPath: string) => {
+    const entries = fs.readdirSync(dirPath, { withFileTypes: true });
+    return entries.map((e) => ({
+      name: e.name,
+      isDirectory: e.isDirectory(),
+    }));
+  },
+};
+```
+
+### Network
+
+```typescript
+const api = {
+  fetchJson: async (url: string) => {
+    const response = await fetch(url);
+    return response.json();
+  },
+};
+```
+
+### Child Processes
+
+```typescript
+import { exec } from "child_process";
+import { promisify } from "util";
+
+const execAsync = promisify(exec);
+
+const api = {
+  runCommand: async (command: string) => {
+    const { stdout } = await execAsync(command);
+    return stdout;
+  },
+};
+```
+
+### OS Information
+
+```typescript
+import { homedir, platform } from "os";
+
+const api = {
+  getSystemInfo: async () => ({
+    home: homedir(),
+    platform: platform(),
+  }),
+};
+```
+
+## Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `PROJECT_DIR` | Absolute path to your project directory |
+
+```typescript
+const api = {
+  getProjectPath: async () => {
+    return process.env.PROJECT_DIR;
+  },
+};
+```
+
+## Error Handling
+
+Throw errors to return them to the frontend:
+
+```typescript
+const api = {
+  readFile: async (path: string) => {
+    if (!path) {
+      throw new Error("Path is required");
+    }
+    if (!fs.existsSync(path)) {
+      throw new Error(`File not found: ${path}`);
+    }
+    return fs.readFileSync(path, "utf-8");
+  },
+};
+```
+
+Frontend:
+
+```typescript
+try {
+  const content = await window.__devCanvasAPI.readFile(path);
+} catch (error) {
+  console.error(error.message); // "File not found: /path"
+}
+```
+
+## Requirements
+
+- All methods must be `async` or return a Promise
+- Arguments and return values must be JSON-serializable
+- Methods have a 30-second timeout

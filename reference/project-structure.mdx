@@ -1,0 +1,139 @@
+---
+title: "Project Structure"
+description: "Reference for ToolDesk workspace and project files"
+---
+
+## Workspace Structure
+
+A ToolDesk workspace contains all your projects:
+
+```
+my-workspace/
+├── package.json          # Workspace configuration
+├── node_modules/         # Shared dependencies
+├── AGENTS.md             # AI context file
+└── packages/             # Your projects
+    ├── project-a/
+    ├── project-b/
+    └── project-c/
+```
+
+| Directory | Purpose |
+|-----------|---------|
+| `package.json` | Workspace configuration and shared dependencies |
+| `node_modules/` | npm packages shared across all projects |
+| `AGENTS.md` | Context file for AI coding tools |
+| `packages/` | Contains all your projects |
+
+## Project Structure
+
+Each project has this structure:
+
+```
+packages/my-project/
+├── package.json           # Project metadata
+├── node/                  # Node.js backend
+│   └── index.ts           # Backend API
+└── web/                   # React frontend
+    ├── index.html         # HTML entry
+    └── src/
+        ├── App.tsx        # Main React component
+        ├── main.tsx       # React entry point
+        └── styles.css     # Styles
+```
+
+| File | Purpose |
+|------|---------|
+| `package.json` | Project metadata with `tooldesk` attribute |
+| `node/index.ts` | Backend API implementation |
+| `web/src/App.tsx` | Main React component |
+| `web/src/styles.css` | Global CSS styles |
+
+## Project package.json
+
+Each project has a `package.json` with the required `tooldesk` attribute:
+
+```json
+{
+  "name": "@workspace/my-project",
+  "version": "1.0.0",
+  "private": true,
+  "tooldesk": {},
+  "scripts": {
+    "build-node": "esbuild ./node/index.ts --outfile=dist/node/out.js --format=cjs --platform=node --target=node18"
+  }
+}
+```
+
+The `tooldesk` attribute is required for ToolDesk to recognize the directory as a project.
+
+## Backend API (`node/index.ts`)
+
+Export an object with async methods:
+
+```typescript
+const api = {
+  hello: async () => {
+    return "Hello!";
+  },
+
+  getData: async (id: string) => {
+    // Your logic here
+    return { id, data: "..." };
+  },
+};
+
+export default api;
+```
+
+## Frontend (`web/src/App.tsx`)
+
+A React component that can call backend methods:
+
+```tsx
+declare global {
+  interface Window {
+    __devCanvasAPI: {
+      hello: () => Promise<string>;
+      getData: (id: string) => Promise<{ id: string; data: string }>;
+      shell: {
+        openExternal: (url: string) => Promise<void>;
+        openApplication: (name: string, args?: string[]) => Promise<void>;
+      };
+    };
+  }
+}
+
+export default function App() {
+  // Your component code
+}
+```
+
+## Shared Components
+
+The workspace may include shared components in `packages/components/`:
+
+```
+packages/
+├── components/           # Shared UI components
+│   └── ui/
+│       ├── button.tsx
+│       ├── card.tsx
+│       └── input.tsx
+└── my-project/           # Your project
+```
+
+Import shared components using the `@/` alias:
+
+```tsx
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+```
+
+## File Naming
+
+| Type | Convention | Example |
+|------|------------|---------|
+| Projects | lowercase with hyphens | `file-browser` |
+| React components | PascalCase | `FileList.tsx` |
+| Utilities | camelCase | `formatDate.ts` |

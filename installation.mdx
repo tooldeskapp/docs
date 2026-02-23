@@ -1,0 +1,111 @@
+---
+title: "Installation"
+description: "Download and install ToolDesk on macOS"
+---
+
+## System Requirements
+
+| Requirement | Minimum |
+|-------------|---------|
+| **Operating System** | macOS 11 (Big Sur) or later |
+| **Node.js** | 18.0 or later |
+| **RAM** | 4 GB |
+| **Disk Space** | 500 MB |
+
+## Download
+
+Download the latest version of ToolDesk from GitHub Releases:
+
+<Card title="Download for macOS" icon="apple" href="https://github.com/tooldesk/releases/latest">
+  Get the `.dmg` installer
+</Card>
+
+## Install ToolDesk
+
+1. Open the downloaded `.dmg` file
+2. Drag **ToolDesk** to your **Applications** folder
+3. Open ToolDesk from Applications
+
+<Warning>
+  On first launch, macOS may show a security warning. Go to **System Settings > Privacy & Security** and click **Open Anyway**, or right-click the app and select **Open**.
+</Warning>
+
+## Install Node.js
+
+ToolDesk requires Node.js to run project backends. If you don't have it installed:
+
+### Option 1: Direct Download
+
+Download the installer from [nodejs.org](https://nodejs.org/) and follow the installation wizard.
+
+### Option 2: Homebrew
+
+```bash
+brew install node
+```
+
+### Option 3: Version Manager (Recommended)
+
+Using a version manager lets you switch between Node.js versions:
+
+<Tabs>
+  <Tab title="nvm">
+    ```bash
+    # Install nvm
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+
+    # Install Node.js
+    nvm install 20
+    nvm use 20
+    ```
+  </Tab>
+  <Tab title="fnm">
+    ```bash
+    # Install fnm
+    curl -fsSL https://fnm.vercel.app/install | bash
+
+    # Install Node.js
+    fnm install 20
+    fnm use 20
+    ```
+  </Tab>
+</Tabs>
+
+## Verify Installation
+
+After installing Node.js, verify it's accessible:
+
+```bash
+node --version
+# Should output: v20.x.x (or your installed version)
+```
+
+ToolDesk automatically detects Node.js from common locations:
+
+- `/usr/local/bin/node`
+- `/opt/homebrew/bin/node` (Homebrew on Apple Silicon)
+- `~/.nvm/versions/node/*/bin/node` (nvm)
+- `~/.fnm/aliases/default/bin/node` (fnm)
+- `~/.volta/bin/node` (Volta)
+
+## Auto-Updates
+
+ToolDesk automatically checks for updates and notifies you when a new version is available. Updates are downloaded in the background and installed when you restart the app.
+
+## Troubleshooting
+
+### Node.js Not Detected
+
+If ToolDesk can't find Node.js:
+
+1. Verify Node.js is installed: `node --version`
+2. Restart ToolDesk after installing Node.js
+3. If using a version manager, ensure it's properly configured
+
+### App Won't Open
+
+If macOS blocks the application:
+
+1. Go to **System Settings > Privacy & Security**
+2. Scroll down and click **Open Anyway** next to the ToolDesk message
+3. Alternatively, right-click the app and select **Open**

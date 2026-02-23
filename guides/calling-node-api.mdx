@@ -1,0 +1,188 @@
+---
+title: "Calling Node API"
+description: "How to call backend methods from your React frontend"
+---
+
+Your frontend communicates with the backend through `window.__devCanvasAPI`. Any method you export from `node/index.ts` is automatically available on this object.
+
+## Basic Usage
+
+**Backend** (`node/index.ts`):
+
+```typescript
+const api = {
+  hello: async () => {
+    return "Hello from the backend!";
+  },
+
+  greet: async (name: string) => {
+    return `Hello, ${name}!`;
+  },
+};
+
+export default api;
+```
+
+**Frontend** (`web/src/App.tsx`):
+
+```typescript
+// Declare the API types
+declare global {
+  interface Window {
+    __devCanvasAPI: {
+      hello: () => Promise<string>;
+      greet: (name: string) => Promise<string>;
+    };
+  }
+}
+
+// Call the methods
+const message = await window.__devCanvasAPI.hello();
+const greeting = await window.__devCanvasAPI.greet("Alice");
+```
+
+## Declaring API Types
+
+At the top of your frontend file, declare the types for your backend methods:
+
+```typescript
+interface Project {
+  id: string;
+  name: string;
+  path: string;
+}
+
+declare global {
+  interface Window {
+    __devCanvasAPI: {
+      // Your backend methods
+      getProjects: () => Promise<Project[]>;
+      addProject: (path: string, name?: string) => Promise<Project>;
+      removeProject: (id: string) => Promise<boolean>;
+      
+      // Built-in shell methods
+      shell: {
+        openExternal: (url: string) => Promise<void>;
+        openApplication: (appName: string, args?: string[]) => Promise<void>;
+      };
+    };
+  }
+}
+```
+
+This gives you TypeScript autocompletion and type checking.
+
+## Complete Example
+
+From the project-manager example:
+
+```typescript
+import { useState, useEffect, useCallback } from "react";
+
+declare global {
+  interface Window {
+    __devCanvasAPI: {
+      getProjects: () => Promise<Project[]>;
+      addProject: (path: string, name?: string, color?: string) => Promise<Project>;
+      removeProject: (id: string) => Promise<boolean>;
+      shell: {
+        openApplication: (appName: string, args?: string[]) => Promise<void>;
+      };
+    };
+  }
+}
+
+interface Project {
+  id: string;
+  name: string;
+  path: string;
+  color: string;
+}
+
+export default function App() {
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const loadProjects = useCallback(async () => {
+    const projectsList = await window.__devCanvasAPI.getProjects();
+    setProjects(projectsList);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    loadProjects();
+  }, [loadProjects]);
+
+  const handleOpenInCursor = async (project: Project) => {
+    await window.__devCanvasAPI.shell.openApplication("Cursor", [project.path]);
+  };
+
+  const handleRemoveProject = async (id: string) => {
+    await window.__devCanvasAPI.removeProject(id);
+    loadProjects();
+  };
+
+  if (loading) return <div>Loading...</div>;
+
+  return (
+    <div>
+      {projects.map((project) => (
+        <div key={project.id}>
+          <span>{project.name}</span>
+          <button onClick={() => handleOpenInCursor(project)}>Open</button>
+          <button onClick={() => handleRemoveProject(project.id)}>Remove</button>
+        </div>
+      ))}
+    </div>
+  );
+}
+```
+
+## Shell Methods
+
+The `shell` object is always available with these methods:
+
+### openApplication
+
+Opens a macOS application:
+
+```typescript
+// Open Cursor with a project path
+await window.__devCanvasAPI.shell.openApplication("Cursor", ["/path/to/project"]);
+
+// Open Finder
+await window.__devCanvasAPI.shell.openApplication("Finder", ["/Users/me/Documents"]);
+
+// Open Terminal
+await window.__devCanvasAPI.shell.openApplication("Terminal");
+```
+
+### openExternal
+
+Opens a URL in the default browser:
+
+```typescript
+await window.__devCanvasAPI.shell.openExternal("https://github.com");
+```
+
+## Error Handling
+
+Wrap calls in try/catch to handle errors:
+
+```typescript
+const loadData = async () => {
+  try {
+    const data = await window.__devCanvasAPI.getData();
+    setData(data);
+  } catch (error) {
+    setError(error instanceof Error ? error.message : "Failed to load");
+  }
+};
+```
+
+## Tips
+
+1. **Declare types** — Always declare the `__devCanvasAPI` type for autocomplete
+2. **Handle loading states** — Show feedback while calls are in progress
+3. **Handle errors** — Display user-friendly error messages
+4. **Use async/await** — All API methods return Promises

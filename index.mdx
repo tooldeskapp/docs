@@ -1,97 +1,70 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+title: "ToolDesk"
+description: "Build apps with AI in a sandboxed environment"
 ---
 
-## Setting up
+ToolDesk is a macOS desktop application that lets you build small web applications with AI assistance. Your apps run in a **sandboxed environment**, so you can safely experiment with AI-generated code without worrying about unintended side effects on your system.
 
-Get your documentation site up and running in minutes.
+## Why ToolDesk?
 
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
+When you use AI to generate code, you want to run it safely. ToolDesk provides:
 
-## Make it yours
+- **Sandboxed execution** — AI-generated Node.js code runs with restricted permissions
+- **React frontend** — Build UIs with React, rendered in an embedded preview
+- **Node.js backend** — Access the filesystem, network, and system APIs
+- **Real-time preview** — See your changes instantly as you develop
 
-Design a docs site that looks great and empowers your users.
+<Note>
+  ToolDesk is designed for **AI-assisted development**. Use your favorite AI coding tool (Cursor, Claude, etc.) to generate and modify your apps.
+</Note>
 
-<Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
+## How It Works
+
+Each ToolDesk project has two parts:
+
+| Part | Location | Purpose |
+|------|----------|---------|
+| **Frontend** | `web/` | React application for the UI |
+| **Backend** | `node/` | Node.js code with system access |
+
+Your frontend can call backend methods through a simple API:
+
+```typescript
+// Call your backend methods
+const files = await window.__devCanvasAPI.listFiles("/Users/me/Documents");
+
+// Use built-in shell methods
+await window.__devCanvasAPI.shell.openApplication("Cursor", ["/path/to/project"]);
+```
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card title="AI-First Development" icon="wand-magic-sparkles">
+    Use AI tools like Cursor or Claude to build your apps. The workspace includes an `AGENTS.md` file that gives AI context about the project structure.
   </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
+  <Card title="Sandboxed Node.js" icon="shield-halved">
+    Run AI-generated code safely. Control what each project can access—filesystem, network, and more—through the UI.
   </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
+  <Card title="Live Preview" icon="bolt">
+    See your changes instantly. The embedded preview updates automatically as you edit your code.
   </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
+  <Card title="Multi-Project Workspace" icon="folder-tree">
+    Manage multiple projects in a single workspace. Switch between them with tab-based navigation.
   </Card>
-</Columns>
+</CardGroup>
 
-## Create beautiful pages
+## Use Cases
 
-Everything you need to create world-class documentation.
+ToolDesk is perfect for building:
 
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
-  </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
-  </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
+- **Developer tools** — Code generators, file processors, project scaffolders
+- **Local utilities** — File organizers, batch processors, data transformers
+- **API clients** — Dashboard tools that interact with external services
+- **Prototypes** — Quick experiments that need backend functionality
 
-## Need inspiration?
+## Getting Started
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
+<Card title="Quickstart" icon="rocket" href="/quickstart">
+  Download ToolDesk and create your first project with AI.
 </Card>

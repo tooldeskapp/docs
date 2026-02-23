@@ -1,0 +1,213 @@
+---
+title: "Backend Development"
+description: "Writing Node.js APIs for ToolDesk projects"
+---
+
+The backend of a ToolDesk project is a Node.js module that exports async methods. These methods can access the filesystem, make network requests, and use any Node.js API.
+
+## Basic Structure
+
+Export a default object with async methods in `node/index.ts`:
+
+```typescript
+const api = {
+  hello: async () => {
+    return "Hello from the backend!";
+  },
+
+  greet: async (name: string) => {
+    return `Hello, ${name}!`;
+  },
+};
+
+export default api;
+```
+
+Each method you export becomes available on `window.__devCanvasAPI` in your frontend.
+
+## Filesystem Operations
+
+```typescript
+import fs from "fs";
+import path from "path";
+
+const api = {
+  listFiles: async (dirPath: string) => {
+    const entries = fs.readdirSync(dirPath, { withFileTypes: true });
+    return entries.map((entry) => ({
+      name: entry.name,
+      isDirectory: entry.isDirectory(),
+    }));
+  },
+
+  readFile: async (filePath: string) => {
+    return fs.readFileSync(filePath, "utf-8");
+  },
+
+  writeFile: async (filePath: string, content: string) => {
+    fs.writeFileSync(filePath, content, "utf-8");
+    return { success: true };
+  },
+};
+
+export default api;
+```
+
+<Warning>
+  Filesystem operations require [sandbox permissions](/guides/sandbox-permissions). Enable "Full Read Access" for reading and "Workspace Read/Write" for writing.
+</Warning>
+
+## Network Requests
+
+```typescript
+const api = {
+  fetchData: async (url: string) => {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    return response.json();
+  },
+
+  postData: async (url: string, data: unknown) => {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    return response.json();
+  },
+};
+
+export default api;
+```
+
+<Note>
+  Network requests require the "Network Access" permission.
+</Note>
+
+## Running Commands
+
+```typescript
+import { exec } from "child_process";
+import { promisify } from "util";
+
+const execAsync = promisify(exec);
+
+const api = {
+  runCommand: async (command: string) => {
+    const { stdout, stderr } = await execAsync(command);
+    return { stdout, stderr };
+  },
+
+  getGitStatus: async (repoPath: string) => {
+    const { stdout } = await execAsync(`cd "${repoPath}" && git status --short`);
+    return stdout;
+  },
+};
+
+export default api;
+```
+
+## Working with Data
+
+Store and retrieve data in your project directory:
+
+```typescript
+import fs from "fs";
+import path from "path";
+
+const DATA_FILE = path.join(__dirname, "..", "data.json");
+
+interface AppData {
+  items: string[];
+}
+
+function loadData(): AppData {
+  if (fs.existsSync(DATA_FILE)) {
+    return JSON.parse(fs.readFileSync(DATA_FILE, "utf-8"));
+  }
+  return { items: [] };
+}
+
+function saveData(data: AppData): void {
+  fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+}
+
+const api = {
+  getItems: async () => {
+    return loadData().items;
+  },
+
+  addItem: async (item: string) => {
+    const data = loadData();
+    data.items.push(item);
+    saveData(data);
+    return data.items;
+  },
+};
+
+export default api;
+```
+
+## Error Handling
+
+Throw errors to return them to the frontend:
+
+```typescript
+const api = {
+  readFile: async (filePath: string) => {
+    if (!filePath) {
+      throw new Error("File path is required");
+    }
+
+    if (!fs.existsSync(filePath)) {
+      throw new Error(`File not found: ${filePath}`);
+    }
+
+    return fs.readFileSync(filePath, "utf-8");
+  },
+};
+```
+
+In your frontend, catch errors normally:
+
+```typescript
+try {
+  const content = await window.__devCanvasAPI.readFile(path);
+} catch (error) {
+  console.error("Failed:", error.message);
+}
+```
+
+## Type Definitions
+
+Define interfaces for complex data:
+
+```typescript
+interface Project {
+  id: string;
+  name: string;
+  path: string;
+  color: string;
+}
+
+const api = {
+  getProjects: async (): Promise<Project[]> => {
+    // ...
+  },
+
+  addProject: async (path: string, name?: string): Promise<Project> => {
+    // ...
+  },
+};
+
+export default api;
+```
+
+## Best Practices
+
+1. **Validate inputs** — Check arguments before processing
+2. **Handle errors** — Throw descriptive errors for failures
+3. **Keep methods focused** — One task per method
+4. **Use TypeScript** — Define types for better AI assistance

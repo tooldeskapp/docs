@@ -1,0 +1,130 @@
+---
+title: "Sandbox"
+description: "How ToolDesk protects your system from AI-generated code"
+---
+
+ToolDesk runs your Node.js backend code in a **sandboxed environment**. This is especially important when you're using AI to generate code—the sandbox prevents unintended side effects on your system.
+
+## Why Sandboxing Matters for AI Development
+
+When you ask an AI to write code, it might:
+
+- Access files it shouldn't
+- Make unexpected network requests
+- Modify system files accidentally
+
+The sandbox restricts what code can do, so you can experiment safely with AI-generated code.
+
+<Note>
+  Sandboxing uses macOS's built-in security features. Each backend method runs in an isolated process with restricted permissions.
+</Note>
+
+## Default Permissions
+
+By default, sandboxed code has **very limited access**:
+
+| Permission | Default |
+|------------|---------|
+| Filesystem read | Denied |
+| Filesystem write | Denied |
+| Network requests | Denied |
+
+<Warning>
+  With default permissions, your code cannot read files, write files, or make network requests. You must explicitly enable what you need.
+</Warning>
+
+## Configuring Permissions
+
+To enable permissions for a project:
+
+1. Right-click the project in the sidebar
+2. Select **Project Settings**
+3. Toggle the permissions you need
+4. Changes take effect immediately
+
+### Available Permissions
+
+<AccordionGroup>
+  <Accordion title="Full Read Access" icon="eye">
+    Allows reading any file on the filesystem.
+    
+    **Use case:** File explorers, code analyzers, backup tools.
+    
+    ```typescript
+    const api = {
+      readConfig: async () => {
+        const fs = await import("fs/promises");
+        return fs.readFile("/Users/me/.zshrc", "utf-8");
+      },
+    };
+    ```
+  </Accordion>
+  
+  <Accordion title="Workspace Read/Write" icon="folder-pen">
+    Allows reading and writing within your project directory.
+    
+    **Use case:** File editors, data processors, local storage.
+    
+    ```typescript
+    const api = {
+      saveData: async (filename: string, data: string) => {
+        const fs = await import("fs/promises");
+        const path = await import("path");
+        const projectDir = process.env.PROJECT_DIR!;
+        await fs.writeFile(path.join(projectDir, filename), data);
+      },
+    };
+    ```
+  </Accordion>
+  
+  <Accordion title="/tmp Access" icon="file-circle-plus">
+    Allows reading and writing in the `/tmp` directory.
+    
+    **Use case:** Temporary file processing, caching.
+  </Accordion>
+  
+  <Accordion title="Network Access" icon="globe">
+    Allows making outbound network requests.
+    
+    **Use case:** API clients, data fetchers.
+    
+    ```typescript
+    const api = {
+      fetchData: async (url: string) => {
+        const response = await fetch(url);
+        return response.json();
+      },
+    };
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Common Permission Combinations
+
+| Project Type | Full Read | Workspace R/W | Network |
+|--------------|-----------|---------------|---------|
+| API Client | No | No | Yes |
+| File Viewer | Yes | No | No |
+| File Editor | Yes | Yes | No |
+| Web Scraper | No | Yes | Yes |
+
+## Debugging Permission Issues
+
+If your code fails with permission errors:
+
+1. Check the **Console** panel for error messages
+2. Look for "Operation not permitted" or similar errors
+3. Enable the appropriate permission in Project Settings
+
+Common error messages:
+
+| Error | Solution |
+|-------|----------|
+| `EACCES: permission denied` | Enable read or write access |
+| `fetch failed` | Enable network access |
+
+## Best Practices
+
+1. **Start restrictive** — Begin with no permissions, add as needed
+2. **Test AI code safely** — Sandbox protects against unintended operations
+3. **Use workspace access** — Prefer workspace access over full filesystem access

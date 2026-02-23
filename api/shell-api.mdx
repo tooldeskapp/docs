@@ -1,0 +1,136 @@
+---
+title: "Shell API"
+description: "Open applications and URLs from your frontend"
+---
+
+The Shell API lets your frontend open applications and URLs. It's available on `window.__devCanvasAPI.shell`.
+
+## Methods
+
+### openApplication
+
+Opens a macOS application by name.
+
+```typescript
+await window.__devCanvasAPI.shell.openApplication(appName: string, args?: string[])
+```
+
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `appName` | `string` | The application name (e.g., "Cursor", "Terminal") |
+| `args` | `string[]` | Optional arguments to pass to the application |
+
+**Examples:**
+
+```typescript
+// Open Cursor with a project path
+await window.__devCanvasAPI.shell.openApplication("Cursor", ["/path/to/project"]);
+
+// Open Finder in a folder
+await window.__devCanvasAPI.shell.openApplication("Finder", ["/Users/me/Documents"]);
+
+// Open Terminal
+await window.__devCanvasAPI.shell.openApplication("Terminal");
+
+// Open Visual Studio Code
+await window.__devCanvasAPI.shell.openApplication("Visual Studio Code", ["/path/to/project"]);
+```
+
+### openExternal
+
+Opens a URL in the default web browser.
+
+```typescript
+await window.__devCanvasAPI.shell.openExternal(url: string)
+```
+
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `url` | `string` | The URL to open |
+
+**Examples:**
+
+```typescript
+// Open a website
+await window.__devCanvasAPI.shell.openExternal("https://github.com");
+
+// Open documentation
+await window.__devCanvasAPI.shell.openExternal("https://docs.example.com");
+```
+
+## Usage Example
+
+```tsx
+import { useState } from "react";
+
+declare global {
+  interface Window {
+    __devCanvasAPI: {
+      shell: {
+        openApplication: (appName: string, args?: string[]) => Promise<void>;
+        openExternal: (url: string) => Promise<void>;
+      };
+    };
+  }
+}
+
+interface Project {
+  name: string;
+  path: string;
+}
+
+function ProjectCard({ project }: { project: Project }) {
+  const [opening, setOpening] = useState(false);
+
+  const handleOpenInCursor = async () => {
+    setOpening(true);
+    try {
+      await window.__devCanvasAPI.shell.openApplication("Cursor", [project.path]);
+    } catch (error) {
+      console.error("Failed to open:", error);
+    } finally {
+      setOpening(false);
+    }
+  };
+
+  const handleOpenDocs = async () => {
+    await window.__devCanvasAPI.shell.openExternal("https://docs.example.com");
+  };
+
+  return (
+    <div>
+      <h3>{project.name}</h3>
+      <button onClick={handleOpenInCursor} disabled={opening}>
+        {opening ? "Opening..." : "Open in Cursor"}
+      </button>
+      <button onClick={handleOpenDocs}>View Docs</button>
+    </div>
+  );
+}
+```
+
+## Common Applications
+
+| App Name | Description |
+|----------|-------------|
+| `"Cursor"` | Cursor IDE |
+| `"Visual Studio Code"` | VS Code |
+| `"Terminal"` | macOS Terminal |
+| `"Finder"` | macOS Finder |
+| `"Safari"` | Safari browser |
+
+## Error Handling
+
+Wrap calls in try/catch to handle errors:
+
+```typescript
+try {
+  await window.__devCanvasAPI.shell.openApplication("NonExistent");
+} catch (error) {
+  console.error("Failed to open application:", error.message);
+}
+```
